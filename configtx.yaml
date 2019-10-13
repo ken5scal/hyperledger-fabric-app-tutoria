@@ -43,6 +43,20 @@ Organizations:
             # encoded in the genesis block in the Application section context
             - Host: peer0.org1.example.com
               Port: 7051
+    - &Org2
+        Name: Org2MSP
+        ID: Org2MSP
+        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+        AnchorPeers:
+            - Host: peer0.org2.example.com
+              Port: 7051
+    - &Org3
+        Name: Org3MSP
+        ID: Org3MSP
+        MSPDir: crypto-config/peerOrganizations/org3.example.com/msp
+        AnchorPeers:
+            - Host: peer0.org3.example.com
+              Port: 7051
 
 ################################################################################
 #
@@ -76,7 +90,7 @@ Orderer: &OrdererDefaults
         - orderer.example.com:7050
 
     # Batch Timeout: The amount of time to wait before creating a batch
-    BatchTimeout: 2s
+    BatchTimeout: 100ms
 
     # Batch Size: Controls the number of messages batched into a block
     BatchSize:
@@ -113,7 +127,7 @@ Orderer: &OrdererDefaults
 ################################################################################
 Profiles:
 
-    OneOrgOrdererGenesis:
+    ThreeOrgOrdererGenesis:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
@@ -122,10 +136,14 @@ Profiles:
             SampleConsortium:
                 Organizations:
                     - *Org1
-    OneOrgChannel:
+                    - *Org2
+                    - *Org3
+    ThreeOrgChannel:
         Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *Org1
+                - *Org2
+                - *Org3
 
