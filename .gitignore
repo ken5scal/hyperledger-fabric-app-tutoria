@@ -1,1 +1,10 @@
 fabric-samples/
+crypto-config/peerOrganizations/
+crypto-config/peerOrganizations/org2.example.com/
+crypto-config/peerOrganizations/org1.example.com/
+crypto-config/peerOrganizations/org3.example.com/
+crypto-config/peerOrganizations/example.com/
+crypto-config/ordererOrganizations/example.com/
+crypto-config/ordererOrganizations/org1.example.com/
+crypto-config/ordererOrganizations/
+crypto-config/ordererOrganizations/
