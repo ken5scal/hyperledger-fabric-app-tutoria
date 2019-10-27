@@ -1,11 +1,10 @@
 package main
 
 import (
+	"cartransfer"
+	"cartransfer/chaincode"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-
-	"../chaincode"
-	".."
 )
 
 func main() {

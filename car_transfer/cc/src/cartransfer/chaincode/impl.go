@@ -1,7 +1,7 @@
 package chaincode
 
 import (
-	".."
+	"cartransfer"
 	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -10,7 +10,6 @@ import (
 )
 
 type CarTransferCC struct {
-
 }
 
 func (this *CarTransferCC) Init(stub shim.ChaincodeStubInterface) pb.Response {
@@ -32,7 +31,7 @@ func (this *CarTransferCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response 
 		timeStamp)
 
 	var (
-		fcn string
+		fcn  string
 		args []string
 	)
 
@@ -93,7 +92,7 @@ func (this *CarTransferCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response 
 		}
 
 		b, err := json.Marshal(car)
-		if err !=nil {
+		if err != nil {
 			mes := fmt.Sprintf("failed to marshal Car: %s", err.Error())
 			logger.Warning(mes)
 			return shim.Error(mes)
@@ -161,7 +160,7 @@ func checkLen(logger *shim.ChaincodeLogger, expected int, args []string) error {
 			"not enough number of arguments: %d given, %d expected",
 			len(args),
 			expected,
-			)
+		)
 		logger.Warning(mes)
 		return errors.New(mes)
 	}
@@ -176,7 +175,7 @@ func (this *CarTransferCC) CheckOwner(stub shim.ChaincodeStubInterface, id strin
 	return false, errors.New("not implemented yet")
 }
 
-func (this *CarTransferCC) ListOwners(stub shim.ChaincodeStubInterface) ([] *cartransfer.Owner, error) {
+func (this *CarTransferCC) ListOwners(stub shim.ChaincodeStubInterface) ([]*cartransfer.Owner, error) {
 	return nil, errors.New("not implemented yed")
 }
 
@@ -196,7 +195,7 @@ func (this *CarTransferCC) GetCar(stub shim.ChaincodeStubInterface, id string) (
 	return nil, errors.New("not implemented yed")
 }
 
-func (this *CarTransferCC) UpdateCar(stub shim.ChaincodeStubInterface, car *cartransfer.Car) (error) {
+func (this *CarTransferCC) UpdateCar(stub shim.ChaincodeStubInterface, car *cartransfer.Car) error {
 	return errors.New("not implemented yed")
 }
 
@@ -204,6 +203,6 @@ func (this *CarTransferCC) ListCars(stub shim.ChaincodeStubInterface) ([]*cartra
 	return nil, errors.New("not implemented yed")
 }
 
-func (this *CarTransferCC) TransferCar(stub shim.ChaincodeStubInterface, carId string, newOwnerId string) (error) {
+func (this *CarTransferCC) TransferCar(stub shim.ChaincodeStubInterface, carId string, newOwnerId string) error {
 	return errors.New("not implemented yed")
 }
