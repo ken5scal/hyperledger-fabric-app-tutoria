@@ -2,9 +2,13 @@ package chaincode
 
 import (
 	"cartransfer"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/protos/msp"
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
@@ -165,6 +169,41 @@ func checkLen(logger *shim.ChaincodeLogger, expected int, args []string) error {
 		return errors.New(mes)
 	}
 	return nil
+}
+
+// Gets CN of transaction creator
+func getCreator(stub shim.ChaincodeStubInterface) (string, error) {
+	logger := shim.NewLogger("cartransfer")
+	creator, err := stub.GetCreator()
+	if err != nil {
+		mes := fmt.Sprintf("failed to get Creator :%s", err)
+		logger.Error(mes)
+		return "", errors.New(mes)
+	}
+
+	in := &msp.SerializedIdentity{}
+	err = proto.Unmarshal(creator, in)
+	if err != nil {
+		mes := fmt.Sprintf("failed to unmarshal creator: %s", err)
+		logger.Error(mes)
+		return "", errors.New(mes)
+	}
+	pemBytes := in.IdBytes
+	block, _ := pem.Decode(pemBytes)
+	if block == nil {
+		mes := "failed to decode creator pem"
+		logger.Error(mes)
+		return "", errors.New(mes)
+	}
+
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		mes := fmt.Sprintf("failed to decode x509 certificate: %s", err)
+		logger.Error(mes)
+		return "", errors.New(mes)
+	}
+
+	return cert.Subject.CommonName, nil
 }
 
 func (this *CarTransferCC) AddOwner(stub shim.ChaincodeStubInterface, owner *cartransfer.Owner) error {
