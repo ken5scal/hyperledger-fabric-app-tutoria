@@ -43,6 +43,39 @@ func (this *CarTransferCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response 
 	logger.Infof("function name = %s", fcn)
 
 	switch fcn {
+	case "AddOwner":
+		if err := checkLen(logger, 1, args); err != nil {
+			return shim.Error(err.Error())
+		}
+
+		owner := new(cartransfer.Owner)
+		err := json.Unmarshal([]byte(args[0]), owner)
+		if err != nil {
+			mes := fmt.Sprintf("failed to un,arshal Owner JSON: %s", err.Error())
+			logger.Warning(mes)
+			return shim.Error(mes)
+		}
+
+		err = this.AddOwner(stub, owner)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		return shim.Success([]byte{})
+	case "ListOwners":
+		owners, err := this.ListOwners(stub)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		b, err := json.Marshal(owners)
+		if err != nil {
+			mes := fmt.Sprintf("failed to marshal Owners: %s", err.Error())
+			logger.Warning(mes)
+			return shim.Error(mes)
+		}
+
+		return shim.Success(b)
 	case "AddCar":
 		if err := checkLen(logger, 1, args); err != nil {
 			return shim.Error(err.Error())
@@ -207,7 +240,49 @@ func getCreator(stub shim.ChaincodeStubInterface) (string, error) {
 }
 
 func (this *CarTransferCC) AddOwner(stub shim.ChaincodeStubInterface, owner *cartransfer.Owner) error {
-	return errors.New("not implemented yed")
+	logger := shim.NewLogger("cartransfer")
+	logger.Infof("AddOwner: Id = %s", owner.Id)
+
+	found, err := this.CheckOwner(stub, owner.Id)
+	if err != nil {
+		return nil
+	}
+	if found {
+		mes := fmt.Sprintf("an Owner with Id = %s already exists", err)
+		logger.Error(mes)
+		return errors.New(mes)
+	}
+
+	// authorization
+	creator, err := getCreator(stub)
+	if err != nil {
+		return nil
+	}
+	if creator != "Carlie" {
+		mes := "authorization failed"
+		logger.Warning(mes)
+		return errors.New(mes)
+	}
+
+	b, err := json.Marshal(owner)
+	if err != nil {
+		logger.Warning(err.Error())
+		return err
+	}
+
+	key, err := stub.CreateCompositeKey("Owner", []string(owner.Id))
+	if err != nil {
+		logger.Warning(err.Error())
+		return err
+	}
+
+	err = stub.PutState(key, b)
+	if err != nil {
+		logger.Warning(err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (this *CarTransferCC) CheckOwner(stub shim.ChaincodeStubInterface, id string) (bool, error) {
